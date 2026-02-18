@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - IQRAH</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-start: #53c764;
+            --bg-end: #23b86b;
+            --card-bg: rgba(255, 255, 255, 0.1);
+            --card-border: rgba(255, 255, 255, 0.2);
+            --glow: #0F9D58;
+            --accent: #D4AF37;
+            --text: #F5F5F5;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, var(--bg-start) 0%, var(--bg-end) 100%);
+            min-height: 100vh;
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            overflow-x: hidden;
+            position: relative;
+            padding: 20px 16px 110px;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .pattern-overlay {
+            position: absolute;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cg fill='%23FFFFFF' fill-opacity='0.03'%3E%3Cpolygon points='50,0 100,25 100,75 50,100 0,75 0,25'/%3E%3C/g%3E%3C/svg%3E");
+            background-size: 120px 120px;
+            opacity: 0.2;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .floating-shape {
+            position: absolute;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(15, 157, 88, 0.3) 0%, rgba(27, 94, 32, 0.2) 100%);
+            filter: blur(60px);
+            animation: float 8s ease-in-out infinite;
+            z-index: 1;
+        }
+
+        .shape-1 {
+            width: 280px;
+            height: 280px;
+            top: -5%;
+            left: -20%;
+        }
+
+        .shape-2 {
+            width: 220px;
+            height: 220px;
+            bottom: 8%;
+            right: -18%;
+            animation-delay: 2.5s;
+        }
+
+        .shape-3 {
+            width: 180px;
+            height: 180px;
+            top: 30%;
+            right: 10%;
+            animation-delay: 1.2s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-28px) rotate(5deg); }
+        }
+
+        .dashboard {
+            width: 100%;
+            max-width: 430px;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .glass {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 22px;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3), 0 0 18px rgba(15, 157, 88, 0.2);
+        }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        .reveal.in-view {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .header-card {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: url("foto/masjid.jpg");
+            background-size: cover;
+            background-position: center;
+            filter: brightness(0.45);
+            opacity: 0.9;
+            z-index: 0;
+        }
+
+        .header-card::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(15, 157, 88, 0.35) 0%, rgba(0, 0, 0, 0.45) 100%);
+            z-index: 1;
+        }
+
+        .header-card > * {
+            position: relative;
+            z-index: 2;
+        }
+
+        .islamic-icons {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--accent);
+        }
+
+        .islamic-icon {
+            width: 22px;
+            height: 22px;
+            opacity: 0.9;
+            filter: drop-shadow(0 0 6px rgba(212, 175, 55, 0.5));
+        }
+
+        .greeting {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .level {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .xp-wrap {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .xp-bar {
+            width: 100%;
+            height: 12px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.2);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .xp-fill {
+            height: 100%;
+            width: 0%;
+            border-radius: 999px;
+            background: linear-gradient(135deg, #FFFFFF 0%, #EAF5EE 100%);
+            box-shadow: 0 0 12px rgba(255, 255, 255, 0.7);
+            transition: width 1.5s ease;
+        }
+
+        .xp-label {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .coin-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+        }
+
+        .coin-icon {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #ffe9a3, #D4AF37 70%);
+            box-shadow: 0 0 12px rgba(212, 175, 55, 0.6);
+            display: grid;
+            place-items: center;
+            animation: coinFloat 3s ease-in-out infinite;
+        }
+
+        .coin-icon svg {
+            width: 14px;
+            height: 14px;
+            fill: #1B5E20;
+        }
+
+        @keyframes coinFloat {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-6px); }
+        }
+
+        .stats-card {
+            padding: 18px;
+            display: grid;
+            gap: 14px;
+            background: rgba(247, 251, 247, 0.95);
+            border: 1px solid rgba(15, 157, 88, 0.18);
+            color: #0F9D58;
+        }
+
+        .stats-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .stats-title {
+            font-weight: 600;
+            font-size: 16px;
+            color: #0F9D58;
+        }
+
+        .circle-progress {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background: conic-gradient(#0F9D58 0deg, #1B5E20 0deg, #E3EFE7 0deg);
+            display: grid;
+            place-items: center;
+            position: relative;
+        }
+
+        .circle-progress::after {
+            content: '';
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: #FFFFFF;
+            border: 1px solid rgba(15, 157, 88, 0.18);
+            position: absolute;
+        }
+
+        .circle-progress span {
+            position: relative;
+            font-weight: 600;
+            font-size: 14px;
+            color: #0B7D46;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .stat-item {
+            background: #ffffff;
+            border: 1px solid rgba(15, 157, 88, 0.15);
+            border-radius: 16px;
+            padding: 12px;
+            min-height: 70px;
+            box-shadow: 0 6px 18px rgba(15, 157, 88, 0.08);
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: rgba(15, 157, 88, 0.7);
+        }
+
+        .stat-value {
+            font-size: 18px;
+            font-weight: 600;
+            margin-top: 6px;
+            color: #0F9D58;
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .menu-card {
+            padding: 16px;
+            border-radius: 20px;
+            text-align: left;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            min-height: 110px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .menu-card.photo-card {
+            background-size: cover;
+            background-position: center;
+        }
+
+        .menu-card.photo-card::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(15, 157, 88, 0.35) 0%, rgba(0, 0, 0, 0.55) 100%);
+            z-index: 0;
+        }
+
+        .menu-card.photo-card > * {
+            position: relative;
+            z-index: 1;
+        }
+
+        .menu-card:hover {
+            box-shadow: 0 0 20px rgba(15, 157, 88, 0.4);
+        }
+
+        .menu-card.pressed {
+            transform: scale(0.97);
+        }
+
+        .menu-icon {
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.18);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            display: grid;
+            place-items: center;
+            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.2);
+            color: #F5F5F5;
+        }
+
+        .menu-icon svg {
+            width: 18px;
+            height: 18px;
+            fill: currentColor;
+        }
+
+        .menu-progress .menu-icon { color: #F9C74F; }
+        .menu-modul .menu-icon { color: #90BE6D; }
+        .menu-tabayyun .menu-icon { color: #4D908E; }
+        .menu-refleksi .menu-icon { color: #577590; }
+        .menu-community .menu-icon { color: #F8961E; }
+        .menu-feeds .menu-icon { color: #F3722C; }
+        .menu-reward .menu-icon { color: #D4AF37; }
+        .menu-profil .menu-icon { color: #F9844A; }
+
+        .menu-title {
+            font-weight: 600;
+            font-size: 13px;
+            letter-spacing: 0.3px;
+            color: #F5F5F5;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 6px 10px;
+            border-radius: 999px;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            backdrop-filter: blur(6px);
+        }
+
+        .reward-card {
+            padding: 18px;
+            display: grid;
+            gap: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .reward-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .reward-title {
+            font-weight: 600;
+        }
+
+        .reward-meta {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .reward-bar {
+            height: 12px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.2);
+            overflow: hidden;
+        }
+
+        .reward-fill {
+            height: 100%;
+            width: 0%;
+            border-radius: 999px;
+            background: linear-gradient(135deg, #0F9D58 0%, #1B5E20 100%);
+            box-shadow: 0 0 14px rgba(15, 157, 88, 0.7);
+            transition: width 1.4s ease;
+        }
+
+        .reward-btn {
+            padding: 12px 16px;
+            border-radius: 999px;
+            border: none;
+            background: linear-gradient(135deg, #0F9D58 0%, #1B5E20 100%);
+            color: var(--text);
+            font-weight: 600;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+        }
+
+        .target-popup {
+            position: absolute;
+            top: 14px;
+            right: 16px;
+            background: rgba(15, 157, 88, 0.9);
+            padding: 6px 10px;
+            border-radius: 999px;
+            font-size: 11px;
+            box-shadow: 0 0 10px rgba(15, 157, 88, 0.6);
+            opacity: 0;
+            transform: translateY(-6px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        .target-popup.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .confetti {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .confetti span {
+            position: absolute;
+            width: 6px;
+            height: 10px;
+            background: #D4AF37;
+            opacity: 0.9;
+            animation: confetti 2.2s ease-in-out forwards;
+        }
+
+        @keyframes confetti {
+            0% { transform: translateY(-10px) rotate(0deg); opacity: 0; }
+            20% { opacity: 1; }
+            100% { transform: translateY(140px) rotate(220deg); opacity: 0; }
+        }
+
+        .bottom-nav {
+            position: fixed;
+            left: 50%;
+            bottom: 16px;
+            transform: translateX(-50%);
+            width: calc(100% - 32px);
+            max-width: 430px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0;
+            z-index: 5;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            font-size: 9px;
+            color: rgba(255, 255, 255, 0.7);
+            transition: color 0.2s ease;
+            text-decoration: none;
+        }
+
+        .nav-item svg {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+        }
+
+        .nav-item.active {
+            color: #0F9D58;
+            text-shadow: 0 0 10px rgba(15, 157, 88, 0.6);
+        }
+
+        @media (max-width: 360px) {
+            .nav-item {
+                font-size: 0;
+            }
+            .nav-item svg {
+                width: 22px;
+                height: 22px;
+            }
+        }
+
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(0);
+            animation: ripple 0.6s linear;
+            pointer-events: none;
+        }
+
+        @keyframes ripple {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+
+        .level-up {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: grid;
+            place-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            z-index: 10;
+        }
+
+        .level-up.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .level-up .popup {
+            background: rgba(15, 157, 88, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 18px 22px;
+            border-radius: 18px;
+            box-shadow: 0 0 28px rgba(15, 157, 88, 0.8);
+            text-align: center;
+        }
+
+        .xp-glow {
+            box-shadow: 0 0 18px rgba(212, 175, 55, 0.8);
+        }
+
+        @media (max-width: 360px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            .menu-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="pattern-overlay"></div>
+    <div class="floating-shape shape-1"></div>
+    <div class="floating-shape shape-2"></div>
+    <div class="floating-shape shape-3"></div>
+
+    <div class="dashboard">
+        <section class="glass header-card reveal">
+            <div>
+                <div class="greeting">Assalamu'alaikum, Wahyu 👋</div>
+                <div class="level">Level 5 - Muta'allim</div>
+                <div class="islamic-icons">
+                    <svg class="islamic-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2l3 6 6 1-4.5 4.4L17 20l-5-3-5 3 1.5-6.6L4 9l6-1 2-6z"/></svg>
+                    <svg class="islamic-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 0 0 0 20 8 8 0 1 1 0-20z"/></svg>
+                    <svg class="islamic-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 4l6 6v10H6V10l6-6zm0-2L4 8v14h16V8L12 2z"/></svg>
+                </div>
+            </div>
+            <div class="xp-wrap">
+                <div class="xp-bar">
+                    <div class="xp-fill" id="xpFill"></div>
+                </div>
+                <div class="xp-label">XP 70% menuju level berikutnya</div>
+            </div>
+            <div class="coin-row">
+                <div class="coin-icon">
+                    <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 4.24 2 7v10c0 2.76 4.48 5 10 5s10-2.24 10-5V7c0-2.76-4.48-5-10-5zm0 2c4.42 0 8 1.57 8 3s-3.58 3-8 3-8-1.57-8-3 3.58-3 8-3zm0 14c-4.42 0-8-1.57-8-3V9.97C5.33 11.2 8.45 12 12 12s6.67-.8 8-2.03V15c0 1.43-3.58 3-8 3z"/></svg>
+                </div>
+                <div><span data-count="1250" class="counter">0</span> koin</div>
+            </div>
+        </section>
+
+        <section class="glass stats-card reveal ripple-target">
+            <div class="stats-header">
+                <div class="stats-title">Quick Stats</div>
+                <div class="circle-progress" id="circleProgress"><span id="circleText">0%</span></div>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-label">Progress Belajar</div>
+                    <div class="stat-value"><span data-count="72" class="counter">0</span>%</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Streak</div>
+                    <div class="stat-value"><span data-count="12" class="counter">0</span> hari 🔥</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Skor Tabayyun</div>
+                    <div class="stat-value"><span data-count="88" class="counter">0</span></div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Konsistensi Refleksi</div>
+                    <div class="stat-value"><span data-count="9" class="counter">0</span>/10</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="menu-grid">
+            <a class="glass menu-card photo-card menu-progress ripple-target reveal" href="Level.html" style="background-image: url('foto/Progres.jpg'); text-decoration: none;">
+                <div class="menu-icon"><svg viewBox="0 0 24 24"><path d="M4 5h12a2 2 0 0 1 2 2v11a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2V7a2 2 0 0 1 2-2zm0 2v8a3 3 0 0 1 2-.7h10V7a0 0 0 0 0 0 0H4z"/></svg></div>
+                <div class="menu-title">Progress Saya</div>
+            </a>
+            <a class="glass menu-card photo-card menu-modul ripple-target reveal" href="Modul.html" style="background-image: url('foto/Modul.jpg'); text-decoration: none;">
+                <div class="menu-icon"><svg viewBox="0 0 24 24"><path d="M6 4h11a3 3 0 0 1 3 3v10a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2V6a2 2 0 0 1 2-2zm0 2v9a3 3 0 0 1 2-.6h10V7a1 1 0 0 0-1-1H6z"/></svg></div>
+                <div class="menu-title">Modul Hari Ini</div>
+            </a>
+            <a class="glass menu-card photo-card menu-tabayyun ripple-target reveal" href="Tabayyun.html" style="background-image: url('foto/tabayyun.jpg'); text-decoration: none;">
+                <div class="menu-icon"><svg viewBox="0 0 24 24"><path d="M12 2l7 3v6c0 5-3 9-7 11-4-2-7-6-7-11V5l7-3zm-1 9.5l-2 2 1.4 1.4 0.6-0.6 3-3-1.4-1.4-1.6 1.6z"/></svg></div>
+                <div class="menu-title">Tabayyun Lab</div>
+            </a>
+            <a class="glass menu-card photo-card menu-refleksi ripple-target reveal" href="Reflection.html" style="background-image: url('foto/Refleksi.jpg'); text-decoration: none;">
+                <div class="menu-icon"><svg viewBox="0 0 24 24"><path d="M12 2l8 4v6c0 4.5-3 8-8 10-5-2-8-5.5-8-10V6l8-4zm0 4a6 6 0 1 0 0 12 6 6 0 0 0 0-12zm0 3l2 2-2 2-2-2 2-2z"/></svg></div>
+                <div class="menu-title">Reflection Tracker</div>
+            </a>
+            <a class="glass menu-card photo-card menu-community ripple-target reveal" href="Community.html" style="background-image: url('foto/community.jpg'); text-decoration: none;">
+                <div class="menu-icon"><svg viewBox="0 0 24 24"><path d="M8 10a3 3 0 1 0-3-3 3 3 0 0 0 3 3zm8 0a3 3 0 1 0-3-3 3 3 0 0 0 3 3zM8 12c-3.3 0-6 1.6-6 3.6V19h12v-3.4C14 13.6 11.3 12 8 12zm8 0c-.6 0-1.2.1-1.8.2a4.3 4.3 0 0 1 2.8 3.4V19h7v-3.4C24 13.6 21.3 12 18 12z"/></svg></div>
+                <div class="menu-title">Community Circle</div>
+            </a>
+            <a class="glass menu-card photo-card menu-feeds ripple-target reveal" href="Feeds.html" style="background-image: url('foto/feeds.jpg'); text-decoration: none;">
+                <div class="menu-icon"><svg viewBox="0 0 24 24"><path d="M4 4h16a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H9l-5 4v-4H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/></svg></div>
+                <div class="menu-title">Feeds</div>
+            </a>
+            <a class="glass menu-card photo-card menu-reward ripple-target reveal" href="Reward.html" style="background-image: url('foto/reward.jpg'); text-decoration: none;">
+                <div class="menu-icon"><svg viewBox="0 0 24 24"><path d="M20 7h-2V5a3 3 0 0 0-3-3H9a3 3 0 0 0-3 3v2H4v4h16V7zm-9-2h2v2h-2V5zm9 8H4v6a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-6z"/></svg></div>
+                <div class="menu-title">Reward</div>
+            </a>
+            <a class="glass menu-card photo-card menu-profil ripple-target reveal" href="Profile.html" style="background-image: url('foto/Profil.jpg'); text-decoration: none;">
+                <div class="menu-icon"><svg viewBox="0 0 24 24"><path d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4zm0 2c-4.4 0-8 2.2-8 5v1h16v-1c0-2.8-3.6-5-8-5z"/></svg></div>
+                <div class="menu-title">Profil</div>
+            </a>
+        </section>
+
+        <section class="glass reward-card reveal ripple-target" id="rewardCard">
+            <div class="reward-top">
+                <div>
+                    <div class="reward-title">Total koin bulan ini</div>
+                    <div class="reward-meta"><span data-count="2100" class="counter">0</span> / 2000 koin</div>
+                </div>
+                <div class="reward-meta"></div>
+            </div>
+            <div class="reward-bar">
+                <div class="reward-fill" id="rewardFill"></div>
+            </div>
+            <a class="reward-btn ripple-target" href="Reward.html">Lihat Reward</a>
+            <div class="target-popup" id="targetPopup">🎉 Target Tercapai!</div>
+            <div class="confetti" id="confetti"></div>
+        </section>
+    </div>
+
+    <nav class="bottom-nav">
+        <a class="nav-item active" href="Dashboard.html">
+            <svg viewBox="0 0 24 24"><path d="M12 3l8 6v11h-6v-6H10v6H4V9l8-6z"/></svg>
+            Home
+        </a>
+        <a class="nav-item" href="Modul.html">
+            <svg viewBox="0 0 24 24"><path d="M6 4h9a3 3 0 0 1 3 3v12a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2V6a2 2 0 0 1 2-2zm0 2v10a3.5 3.5 0 0 1 2-.7h8V7a1 1 0 0 0-1-1H6z"/></svg>
+            Modul
+        </a>
+        <a class="nav-item" href="Feeds.html">
+            <svg viewBox="0 0 24 24"><path d="M4 4h16a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H7l-3 3v-3H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm3 4h10v2H7zm0 4h7v2H7z"/></svg>
+            Feeds
+        </a>
+        <a class="nav-item" href="Community.html">
+            <svg viewBox="0 0 24 24"><path d="M4 4h16a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H9l-5 4v-4H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/></svg>
+            Community
+        </a>
+        <a class="nav-item" href="Profile.html">
+            <svg viewBox="0 0 24 24"><path d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4zm0 2c-4.4 0-8 2.2-8 5v1h16v-1c0-2.8-3.6-5-8-5z"/></svg>
+            Profil
+        </a>
+    </nav>
+
+    <div class="level-up" id="levelUp">
+        <div class="popup">✨ Level Up! XP Penuh ✨</div>
+    </div>
+
+    <script>
+        const xpTarget = 70;
+        const xpFill = document.getElementById('xpFill');
+        const rewardFill = document.getElementById('rewardFill');
+        const targetPopup = document.getElementById('targetPopup');
+        const confettiWrap = document.getElementById('confetti');
+        const levelUp = document.getElementById('levelUp');
+        const circleProgress = document.getElementById('circleProgress');
+        const circleText = document.getElementById('circleText');
+
+        function animateCounter(el, target, duration) {
+            const start = 0;
+            const startTime = performance.now();
+            function tick(now) {
+                const progress = Math.min((now - startTime) / duration, 1);
+                const value = Math.floor(start + (target - start) * progress);
+                el.textContent = value;
+                if (progress < 1) requestAnimationFrame(tick);
+            }
+            requestAnimationFrame(tick);
+        }
+
+        function animateXp(to) {
+            xpFill.style.width = `${to}%`;
+        }
+
+        function animateCircle(target) {
+            const startTime = performance.now();
+            function tick(now) {
+                const progress = Math.min((now - startTime) / 1200, 1);
+                const value = Math.floor(target * progress);
+                circleProgress.style.background = `conic-gradient(#0F9D58 0deg, #1B5E20 ${value * 3.6}deg, #E3EFE7 ${value * 3.6}deg)`;
+                circleText.textContent = `${value}%`;
+                if (progress < 1) requestAnimationFrame(tick);
+            }
+            requestAnimationFrame(tick);
+        }
+
+        function makeConfetti() {
+            for (let i = 0; i < 18; i += 1) {
+                const piece = document.createElement('span');
+                piece.style.left = `${Math.random() * 100}%`;
+                piece.style.background = Math.random() > 0.5 ? '#D4AF37' : '#F5F5F5';
+                piece.style.animationDelay = `${Math.random() * 0.6}s`;
+                confettiWrap.appendChild(piece);
+                setTimeout(() => piece.remove(), 2200);
+            }
+        }
+
+        function rippleEffect(e) {
+            const target = e.currentTarget;
+            const circle = document.createElement('span');
+            const diameter = Math.max(target.clientWidth, target.clientHeight);
+            const radius = diameter / 2;
+            circle.style.width = circle.style.height = `${diameter}px`;
+            circle.style.left = `${e.clientX - target.getBoundingClientRect().left - radius}px`;
+            circle.style.top = `${e.clientY - target.getBoundingClientRect().top - radius}px`;
+            circle.classList.add('ripple');
+            const ripple = target.getElementsByClassName('ripple')[0];
+            if (ripple) ripple.remove();
+            target.appendChild(circle);
+        }
+
+        document.querySelectorAll('.ripple-target').forEach(card => {
+            card.addEventListener('click', rippleEffect);
+            card.addEventListener('pointerdown', () => card.classList.add('pressed'));
+            card.addEventListener('pointerup', () => card.classList.remove('pressed'));
+            card.addEventListener('pointerleave', () => card.classList.remove('pressed'));
+        });
+
+        const observer = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('in-view');
+                }
+            });
+        }, { threshold: 0.2 });
+
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+        document.querySelectorAll('.counter').forEach(el => {
+            const target = Number(el.dataset.count || 0);
+            animateCounter(el, target, 1400);
+        });
+
+        animateCircle(72);
+        animateXp(xpTarget);
+
+        const monthCoins = 2100;
+        const targetCoins = 2000;
+        const progress = Math.min(monthCoins / targetCoins, 1) * 100;
+        setTimeout(() => {
+            rewardFill.style.width = `${progress}%`;
+            if (monthCoins >= targetCoins) {
+                targetPopup.classList.add('show');
+                makeConfetti();
+            }
+        }, 200);
+
+        setTimeout(() => {
+            xpFill.classList.add('xp-glow');
+            animateXp(100);
+            levelUp.classList.add('show');
+            setTimeout(() => {
+                levelUp.classList.remove('show');
+                xpFill.classList.remove('xp-glow');
+                animateXp(xpTarget);
+            }, 1800);
+        }, 2400);
+
+        levelUp.addEventListener('click', () => levelUp.classList.remove('show'));
+    </script>
+</body>
+</html>

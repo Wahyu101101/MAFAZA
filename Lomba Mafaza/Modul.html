@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modul Hari Ini - IQRAH</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-start: #53c764;
+            --bg-end: #23b86b;
+            --card-bg: rgba(255, 255, 255, 0.1);
+            --card-border: rgba(255, 255, 255, 0.2);
+            --glow: #0F9D58;
+            --accent: #D4AF37;
+            --text: #F5F5F5;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, var(--bg-start) 0%, var(--bg-end) 100%);
+            min-height: 100vh;
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 20px 16px 110px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+
+        body::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .pattern-overlay {
+            position: absolute;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cg fill='%23FFFFFF' fill-opacity='0.03'%3E%3Cpolygon points='50,0 100,25 100,75 50,100 0,75 0,25'/%3E%3C/g%3E%3C/svg%3E");
+            background-size: 120px 120px;
+            opacity: 0.18;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .floating-shape {
+            position: absolute;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(15, 157, 88, 0.3) 0%, rgba(27, 94, 32, 0.2) 100%);
+            filter: blur(55px);
+            animation: float 8s ease-in-out infinite;
+            z-index: 1;
+        }
+
+        .shape-1 {
+            width: 240px;
+            height: 240px;
+            top: -8%;
+            left: -18%;
+        }
+
+        .shape-2 {
+            width: 200px;
+            height: 200px;
+            bottom: 5%;
+            right: -15%;
+            animation-delay: 2.5s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-26px) rotate(4deg); }
+        }
+
+        .page {
+            width: 100%;
+            max-width: 430px;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.92);
+            border: 1px solid rgba(15, 157, 88, 0.18);
+            border-radius: 22px;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 10px 32px rgba(0, 0, 0, 0.18), 0 0 18px rgba(15, 157, 88, 0.12);
+            color: #0F9D58;
+        }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        .reveal.in-view {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 6px;
+            animation: fadeIn 0.9s ease;
+        }
+
+        .back-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            display: grid;
+            place-items: center;
+            color: var(--text);
+            background: rgba(255, 255, 255, 0.08);
+            text-decoration: none;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .back-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 16px rgba(15, 157, 88, 0.4);
+        }
+
+        .title-wrap {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .title {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .subtitle {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .chips {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding-bottom: 6px;
+            scroll-snap-type: x mandatory;
+        }
+
+        .chips::-webkit-scrollbar {
+            height: 0;
+        }
+
+        .chip {
+            white-space: nowrap;
+            padding: 8px 14px;
+            border-radius: 999px;
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text);
+            font-size: 12px;
+            cursor: pointer;
+            scroll-snap-align: start;
+            transition: all 0.2s ease;
+        }
+
+        .chip.active {
+            background: rgba(15, 157, 88, 0.25);
+            border-color: rgba(15, 157, 88, 0.5);
+            box-shadow: 0 0 14px rgba(15, 157, 88, 0.5);
+        }
+
+        .module-card {
+            padding: 16px;
+            display: grid;
+            gap: 12px;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .module-card:hover {
+            box-shadow: 0 0 20px rgba(15, 157, 88, 0.35);
+        }
+
+        .module-card.pressed {
+            transform: scale(0.98);
+        }
+
+        .module-top {
+            display: grid;
+            grid-template-columns: 70px 1fr;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .thumb {
+            width: 70px;
+            height: 70px;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            overflow: hidden;
+        }
+
+        .thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .module-title {
+            font-weight: 600;
+            font-size: 15px;
+        }
+
+        .module-desc {
+            font-size: 12px;
+            color: rgba(15, 157, 88, 0.7);
+            margin-top: 4px;
+        }
+
+        .meta {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            font-size: 11px;
+            color: rgba(15, 157, 88, 0.7);
+        }
+
+        .pill {
+            padding: 4px 10px;
+            border-radius: 999px;
+            border: 1px solid rgba(15, 157, 88, 0.2);
+            background: rgba(15, 157, 88, 0.08);
+            color: #0F9D58;
+        }
+
+        .progress-bar {
+            height: 8px;
+            border-radius: 999px;
+            background: rgba(15, 157, 88, 0.15);
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            border-radius: 999px;
+            background: linear-gradient(135deg, #0F9D58 0%, #1B5E20 100%);
+            transition: width 1.2s ease;
+        }
+
+        .module-actions {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .btn {
+            padding: 10px 16px;
+            border-radius: 999px;
+            border: none;
+            background: linear-gradient(135deg, #0F9D58 0%, #1B5E20 100%);
+            color: var(--text);
+            font-weight: 600;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .learning {
+            padding: 18px;
+            display: grid;
+            gap: 12px;
+        }
+
+        .video {
+            height: 160px;
+            border-radius: 16px;
+            background: rgba(15, 157, 88, 0.08);
+            border: 1px solid rgba(15, 157, 88, 0.2);
+            overflow: hidden;
+        }
+
+        .video iframe {
+            width: 100%;
+            height: 100%;
+            border: 0;
+        }
+
+        .learning.hidden,
+        .quiz.hidden {
+            display: none;
+        }
+
+        .quiz {
+            padding: 18px;
+            display: grid;
+            gap: 12px;
+            transform: translateY(20px);
+            opacity: 0;
+            transition: transform 0.4s ease, opacity 0.4s ease;
+        }
+
+        .quiz.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .quiz-options {
+            display: grid;
+            gap: 10px;
+        }
+
+        .option {
+            padding: 10px 12px;
+            border-radius: 14px;
+            border: 1px solid rgba(15, 157, 88, 0.2);
+            background: rgba(15, 157, 88, 0.08);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: #0F9D58;
+        }
+
+        .option.selected {
+            border-color: rgba(15, 157, 88, 0.6);
+            background: rgba(15, 157, 88, 0.25);
+            box-shadow: 0 0 12px rgba(15, 157, 88, 0.35);
+        }
+
+        .result {
+            padding: 12px;
+            border-radius: 14px;
+            background: rgba(15, 157, 88, 0.08);
+            border: 1px solid rgba(15, 157, 88, 0.2);
+            font-size: 12px;
+            color: rgba(15, 157, 88, 0.9);
+            display: none;
+        }
+
+        .result.show {
+            display: block;
+        }
+
+        .badge {
+            display: inline-flex;
+            padding: 6px 10px;
+            border-radius: 999px;
+            background: rgba(15, 157, 88, 0.15);
+            border: 1px solid rgba(15, 157, 88, 0.35);
+            color: #0F9D58;
+            font-size: 11px;
+            margin-top: 6px;
+        }
+
+        .stats {
+            display: flex;
+            gap: 16px;
+            font-size: 12px;
+            color: rgba(15, 157, 88, 0.8);
+        }
+
+        .xp-bar {
+            height: 10px;
+            border-radius: 999px;
+            background: rgba(15, 157, 88, 0.15);
+            overflow: hidden;
+        }
+
+        .xp-fill {
+            height: 100%;
+            width: 0%;
+            border-radius: 999px;
+            background: linear-gradient(135deg, #0F9D58 0%, #1B5E20 100%);
+            box-shadow: 0 0 12px rgba(15, 157, 88, 0.6);
+            transition: width 1.4s ease;
+        }
+
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(0);
+            animation: ripple 0.6s linear;
+            pointer-events: none;
+        }
+
+        @keyframes ripple {
+            to { transform: scale(4); opacity: 0; }
+        }
+
+        .bottom-nav {
+            position: fixed;
+            left: 50%;
+            bottom: 16px;
+            transform: translateX(-50%);
+            width: calc(100% - 32px);
+            max-width: 430px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0;
+            z-index: 5;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            font-size: 9px;
+            color: rgba(255, 255, 255, 0.7);
+            transition: color 0.2s ease;
+            text-decoration: none;
+        }
+
+        .nav-item svg {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+        }
+
+        .nav-item.active {
+            color: #0F9D58;
+            text-shadow: 0 0 10px rgba(15, 157, 88, 0.6);
+        }
+
+        @media (max-width: 360px) {
+            .nav-item {
+                font-size: 0;
+            }
+            .nav-item svg {
+                width: 22px;
+                height: 22px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="pattern-overlay"></div>
+    <div class="floating-shape shape-1"></div>
+    <div class="floating-shape shape-2"></div>
+
+    <div class="page">
+        <header class="header">
+            <a class="back-btn" href="Dashboard.html" aria-label="Kembali">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M15 6l-6 6 6 6"/></svg>
+            </a>
+            <div class="title-wrap">
+                <div class="title">Modul Hari Ini</div>
+                <div class="subtitle">Tingkatkan Ilmu & Imanmu</div>
+            </div>
+        </header>
+
+        <section class="chips reveal">
+            <button class="chip active">Sejarah Nabi</button>
+            <button class="chip">Tafsir Al-Qur'an</button>
+            <button class="chip">Aqidah</button>
+            <button class="chip">Akhlak</button>
+            <button class="chip">Fiqih</button>
+            <button class="chip">Juz 1–30</button>
+        </section>
+
+        <section class="module-card glass reveal ripple-target" data-progress="45">
+            <div class="module-top">
+                <div class="thumb"><img src="foto/Modul.jpg" alt="Modul"></div>
+                <div>
+                    <div class="module-title">Adab Menuntut Ilmu</div>
+                    <div class="module-desc">Memahami adab belajar agar ilmu jadi berkah.</div>
+                    <div class="meta">
+                        <div class="pill">10 menit</div>
+                        <div class="pill">Beginner</div>
+                    </div>
+                </div>
+            </div>
+            <div class="progress-bar"><div class="progress-fill"></div></div>
+            <div class="module-actions">
+                <button class="btn start-btn">Mulai</button>
+            </div>
+        </section>
+
+        <section class="module-card glass reveal ripple-target" data-progress="70">
+            <div class="module-top">
+                <div class="thumb"><img src="foto/tabayyun.jpg" alt="Modul"></div>
+                <div>
+                    <div class="module-title">Tabayyun di Era Digital</div>
+                    <div class="module-desc">Cara memverifikasi berita sebelum berbagi.</div>
+                    <div class="meta">
+                        <div class="pill">12 menit</div>
+                        <div class="pill">Intermediate</div>
+                    </div>
+                </div>
+            </div>
+            <div class="progress-bar"><div class="progress-fill"></div></div>
+            <div class="module-actions">
+                <button class="btn start-btn">Mulai</button>
+            </div>
+        </section>
+
+        <section class="module-card glass reveal ripple-target" data-progress="25">
+            <div class="module-top">
+                <div class="thumb"><img src="foto/Refleksi.jpg" alt="Modul"></div>
+                <div>
+                    <div class="module-title">Refleksi Harian</div>
+                    <div class="module-desc">Menyusun journal harian untuk konsistensi iman.</div>
+                    <div class="meta">
+                        <div class="pill">8 menit</div>
+                        <div class="pill">Beginner</div>
+                    </div>
+                </div>
+            </div>
+            <div class="progress-bar"><div class="progress-fill"></div></div>
+            <div class="module-actions">
+                <button class="btn start-btn">Mulai</button>
+            </div>
+        </section>
+
+        <section class="learning glass reveal hidden" id="learningView">
+            <div class="module-title" id="learningTitle">Adab Menuntut Ilmu</div>
+            <div class="video">
+                <iframe src="https://www.youtube.com/embed/rNEfq-AABK4?rel=0" title="Video Modul" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            </div>
+            <div class="module-desc" id="learningDesc">Ringkasan materi akan tampil di sini.</div>
+            <button class="btn" id="nextBtn">Lanjut</button>
+        </section>
+
+        <section class="quiz glass hidden" id="quizPanel">
+            <div class="module-title">Quiz Singkat</div>
+            <div class="quiz-options">
+                <div class="option">1. Menuntut ilmu harus diniatkan karena Allah.</div>
+                <div class="option">2. Ilmu cukup untuk dunia saja.</div>
+                <div class="option">3. Tabayyun tidak diperlukan saat online.</div>
+            </div>
+            <button class="btn" id="submitQuiz">Submit</button>
+            <div class="result" id="quizResult">
+                Skor: <span id="scoreText">0</span>/3
+                <div class="stats">
+                    <div>XP: <span id="xpCount">0</span></div>
+                    <div>Koin: <span id="coinCount">0</span></div>
+                </div>
+                <div class="xp-bar"><div class="xp-fill" id="xpFill"></div></div>
+                <div class="badge" id="fastBadge">📚 Fast Learner</div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        const observer = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('in-view');
+                }
+            });
+        }, { threshold: 0.2 });
+
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+        document.querySelectorAll('.chip').forEach(chip => {
+            chip.addEventListener('click', () => {
+                document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+                chip.classList.add('active');
+            });
+        });
+
+        function rippleEffect(e) {
+            const target = e.currentTarget;
+            const circle = document.createElement('span');
+            const diameter = Math.max(target.clientWidth, target.clientHeight);
+            const radius = diameter / 2;
+            circle.style.width = circle.style.height = `${diameter}px`;
+            circle.style.left = `${e.clientX - target.getBoundingClientRect().left - radius}px`;
+            circle.style.top = `${e.clientY - target.getBoundingClientRect().top - radius}px`;
+            circle.classList.add('ripple');
+            const ripple = target.getElementsByClassName('ripple')[0];
+            if (ripple) ripple.remove();
+            target.appendChild(circle);
+        }
+
+        document.querySelectorAll('.ripple-target').forEach(card => {
+            card.addEventListener('click', rippleEffect);
+            card.addEventListener('pointerdown', () => card.classList.add('pressed'));
+            card.addEventListener('pointerup', () => card.classList.remove('pressed'));
+            card.addEventListener('pointerleave', () => card.classList.remove('pressed'));
+        });
+
+        document.querySelectorAll('.module-card').forEach(card => {
+            const fill = card.querySelector('.progress-fill');
+            const progress = card.dataset.progress || 0;
+            requestAnimationFrame(() => {
+                fill.style.width = `${progress}%`;
+            });
+        });
+
+        const learningView = document.getElementById('learningView');
+        const learningTitle = document.getElementById('learningTitle');
+        const learningDesc = document.getElementById('learningDesc');
+        const quizPanel = document.getElementById('quizPanel');
+        const nextBtn = document.getElementById('nextBtn');
+        const submitQuiz = document.getElementById('submitQuiz');
+        const quizResult = document.getElementById('quizResult');
+        const scoreText = document.getElementById('scoreText');
+        const xpCount = document.getElementById('xpCount');
+        const coinCount = document.getElementById('coinCount');
+        const xpFill = document.getElementById('xpFill');
+        const fastBadge = document.getElementById('fastBadge');
+
+        fastBadge.style.display = 'none';
+
+        document.querySelectorAll('.start-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const card = btn.closest('.module-card');
+                learningTitle.textContent = card.querySelector('.module-title').textContent;
+                learningDesc.textContent = card.querySelector('.module-desc').textContent;
+                learningView.classList.remove('hidden');
+                quizPanel.classList.add('hidden');
+                quizPanel.classList.remove('show');
+                quizResult.classList.remove('show');
+                window.scrollTo({ top: learningView.offsetTop - 20, behavior: 'smooth' });
+            });
+        });
+
+        nextBtn.addEventListener('click', () => {
+            quizPanel.classList.remove('hidden');
+            setTimeout(() => quizPanel.classList.add('show'), 20);
+            window.scrollTo({ top: quizPanel.offsetTop - 20, behavior: 'smooth' });
+        });
+
+        const options = document.querySelectorAll('.option');
+        let selectedIndex = null;
+        options.forEach((opt, idx) => {
+            opt.addEventListener('click', () => {
+                options.forEach(o => o.classList.remove('selected'));
+                opt.classList.add('selected');
+                selectedIndex = idx;
+            });
+        });
+
+        function animateCounter(el, target, duration) {
+            const start = 0;
+            const startTime = performance.now();
+            function tick(now) {
+                const progress = Math.min((now - startTime) / duration, 1);
+                const value = Math.floor(start + (target - start) * progress);
+                el.textContent = value;
+                if (progress < 1) requestAnimationFrame(tick);
+            }
+            requestAnimationFrame(tick);
+        }
+
+        submitQuiz.addEventListener('click', () => {
+            if (selectedIndex === null) return;
+            const score = selectedIndex === 0 ? 3 : 1;
+            scoreText.textContent = score;
+            quizResult.classList.add('show');
+            const xp = score * 40;
+            const coin = score * 15;
+            animateCounter(xpCount, xp, 900);
+            animateCounter(coinCount, coin, 900);
+            requestAnimationFrame(() => {
+                xpFill.style.width = `${Math.min(score * 30, 100)}%`;
+            });
+            if (score >= 3) {
+                fastBadge.style.display = 'inline-flex';
+            }
+            quizResult.classList.add('show');
+        });
+    </script>
+    <nav class="bottom-nav">
+        <a class="nav-item" href="Dashboard.html">
+            <svg viewBox="0 0 24 24"><path d="M12 3l8 6v11h-6v-6H10v6H4V9l8-6z"/></svg>
+            Home
+        </a>
+        <a class="nav-item active" href="Modul.html">
+            <svg viewBox="0 0 24 24"><path d="M6 4h9a3 3 0 0 1 3 3v12a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2V6a2 2 0 0 1 2-2zm0 2v10a3.5 3.5 0 0 1 2-.7h8V7a1 1 0 0 0-1-1H6z"/></svg>
+            Modul
+        </a>
+        <a class="nav-item" href="Feeds.html">
+            <svg viewBox="0 0 24 24"><path d="M4 4h16a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H7l-3 3v-3H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm3 4h10v2H7zm0 4h7v2H7z"/></svg>
+            Feeds
+        </a>
+        <a class="nav-item" href="Community.html">
+            <svg viewBox="0 0 24 24"><path d="M4 4h16a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H9l-5 4v-4H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/></svg>
+            Community
+        </a>
+        <a class="nav-item" href="Profile.html">
+            <svg viewBox="0 0 24 24"><path d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4zm0 2c-4.4 0-8 2.2-8 5v1h16v-1c0-2.8-3.6-5-8-5z"/></svg>
+            Profil
+        </a>
+    </nav>
+</body>
+</html>

@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feeds - IQRAH</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-start: #3ca543;
+            --bg-end: #0F9D58;
+            --card-bg: rgba(255, 255, 255, 0.08);
+            --card-border: rgba(255, 255, 255, 0.15);
+            --glow: #0F9D58;
+            --accent: #D4AF37;
+            --text: #F5F5F5;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, var(--bg-start) 0%, var(--bg-end) 100%);
+            min-height: 100vh;
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            position: relative;
+            overflow: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .pattern-overlay {
+            position: absolute;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cg fill='%23FFFFFF' fill-opacity='0.03'%3E%3Cpolygon points='50,0 100,25 100,75 50,100 0,75 0,25'/%3E%3C/g%3E%3C/svg%3E");
+            background-size: 120px 120px;
+            opacity: 0.2;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .floating-shape {
+            position: absolute;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(15, 157, 88, 0.3) 0%, rgba(27, 94, 32, 0.2) 100%);
+            filter: blur(55px);
+            animation: float 8s ease-in-out infinite;
+            z-index: 1;
+        }
+
+        .shape-1 {
+            width: 240px;
+            height: 240px;
+            top: -8%;
+            left: -18%;
+        }
+
+        .shape-2 {
+            width: 200px;
+            height: 200px;
+            bottom: 5%;
+            right: -15%;
+            animation-delay: 2.5s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-26px) rotate(4deg); }
+        }
+
+        .page {
+            width: 100%;
+            max-width: 430px;
+            position: relative;
+            z-index: 2;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filters {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding: 16px 14px 8px;
+            scroll-snap-type: x mandatory;
+            background: rgba(0, 0, 0, 0.12);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.25);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(12px);
+        }
+
+        .filters::-webkit-scrollbar {
+            height: 0;
+        }
+
+        .chip {
+            white-space: nowrap;
+            padding: 8px 14px;
+            border-radius: 999px;
+            border: 1px solid var(--card-border);
+            background: var(--card-bg);
+            color: var(--text);
+            font-size: 12px;
+            cursor: pointer;
+            scroll-snap-align: start;
+            transition: all 0.2s ease;
+        }
+
+        .chip.active {
+            background: rgba(15, 157, 88, 0.25);
+            border-color: rgba(15, 157, 88, 0.5);
+            box-shadow: 0 0 14px rgba(15, 157, 88, 0.5);
+        }
+
+        .feed {
+            flex: 1;
+            overflow-y: auto;
+            scroll-snap-type: y mandatory;
+            padding-bottom: 90px;
+        }
+
+        .feed-item {
+            position: relative;
+            height: 100vh;
+            scroll-snap-align: start;
+            display: grid;
+            place-items: center;
+            overflow: hidden;
+            transition: filter 0.4s ease, transform 0.4s ease;
+        }
+
+        .feed-item.blur {
+            filter: blur(2px);
+        }
+
+        .feed-item.active {
+            transform: scale(1.01);
+        }
+
+        video,
+        iframe {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(0deg, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0.15) 45%, rgba(0, 0, 0, 0) 70%);
+        }
+
+        .content {
+            position: absolute;
+            bottom: 90px;
+            left: 16px;
+            right: 72px;
+            display: grid;
+            gap: 6px;
+        }
+
+        .title {
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .desc {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .creator {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .actions {
+            position: absolute;
+            right: 12px;
+            bottom: 120px;
+            display: grid;
+            gap: 12px;
+            justify-items: center;
+        }
+
+        .action-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.08);
+            display: grid;
+            place-items: center;
+            color: var(--text);
+            font-size: 18px;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .action-btn.active {
+            color: var(--accent);
+            box-shadow: 0 0 14px rgba(212, 175, 55, 0.6);
+            transform: scale(1.08);
+        }
+
+        .counter {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.8);
+            margin-top: -6px;
+        }
+
+        .progress {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 3px;
+            background: linear-gradient(135deg, #0F9D58 0%, #1B5E20 100%);
+            width: 0%;
+            box-shadow: 0 0 12px rgba(15, 157, 88, 0.6);
+        }
+
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(0);
+            animation: ripple 0.6s linear;
+            pointer-events: none;
+        }
+
+        @keyframes ripple {
+            to { transform: scale(4); opacity: 0; }
+        }
+
+        .bottom-nav {
+            position: fixed;
+            left: 50%;
+            bottom: 16px;
+            transform: translateX(-50%);
+            width: calc(100% - 32px);
+            max-width: 430px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0;
+            z-index: 5;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            font-size: 9px;
+            color: rgba(255, 255, 255, 0.7);
+            transition: color 0.2s ease;
+            text-decoration: none;
+        }
+
+        .nav-item svg {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+        }
+
+        .nav-item.active {
+            color: #0F9D58;
+            text-shadow: 0 0 10px rgba(15, 157, 88, 0.6);
+        }
+
+        @media (max-width: 360px) {
+            .nav-item {
+                font-size: 0;
+            }
+            .nav-item svg {
+                width: 22px;
+                height: 22px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="pattern-overlay"></div>
+    <div class="floating-shape shape-1"></div>
+    <div class="floating-shape shape-2"></div>
+
+    <div class="page">
+        <div class="filters">
+            <button class="chip active">Sejarah Nabi</button>
+            <button class="chip">Tafsir Al-Qur'an</button>
+            <button class="chip">Self Growth</button>
+            <button class="chip">Akhlak</button>
+            <button class="chip">Sosial</button>
+            <button class="chip">Motivasi Hijrah</button>
+        </div>
+
+        <div class="feed" id="feed">
+            <section class="feed-item">
+                <div class="progress"></div>
+                <iframe data-muted-src="https://www.youtube.com/embed/MzmS-ImEnb4?rel=0&playsinline=1&mute=1&autoplay=1" data-unmuted-src="https://www.youtube.com/embed/MzmS-ImEnb4?rel=0&playsinline=1&mute=0&autoplay=1" data-unmuted-src-fallback="https://www.youtube.com/embed/MzmS-ImEnb4?rel=0&playsinline=1&mute=0&autoplay=1" data-paused-src="https://www.youtube.com/embed/MzmS-ImEnb4?rel=0&playsinline=1&mute=0&autoplay=0" data-playing="true" src="https://www.youtube.com/embed/MzmS-ImEnb4?rel=0&playsinline=1&mute=1&autoplay=1" title="Feed Video 1" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>
+                <div class="overlay"></div>
+                <div class="content">
+                    <div class="title">Kisah Hijrah Nabi</div>
+                    <div class="desc">Pelajaran tentang keteguhan dan tawakal.</div>
+                    <div class="creator">by @iqrah.story</div>
+                </div>
+                <div class="actions">
+                    <div class="action-btn like" data-id="1">❤️</div>
+                    <div class="counter" data-count="1">120</div>
+                    <div class="action-btn save" data-id="1">🔖</div>
+                    <div class="action-btn share">📤</div>
+                </div>
+            </section>
+            <section class="feed-item">
+                <div class="progress"></div>
+                <iframe data-muted-src="https://www.youtube.com/embed/5sCx2t0FrcQ?rel=0&playsinline=1&mute=1&autoplay=1" data-unmuted-src="https://www.youtube.com/embed/5sCx2t0FrcQ?rel=0&playsinline=1&mute=0&autoplay=1" data-unmuted-src-fallback="https://www.youtube.com/embed/5sCx2t0FrcQ?rel=0&playsinline=1&mute=0&autoplay=1" data-paused-src="https://www.youtube.com/embed/5sCx2t0FrcQ?rel=0&playsinline=1&mute=0&autoplay=0" data-playing="true" src="https://www.youtube.com/embed/5sCx2t0FrcQ?rel=0&playsinline=1&mute=1&autoplay=1" title="Feed Video 2" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>
+                <div class="overlay"></div>
+                <div class="content">
+                    <div class="title">Tadabbur Al-Ikhlas</div>
+                    <div class="desc">Makna tauhid yang menenangkan hati.</div>
+                    <div class="creator">by @iqrah.tadabbur</div>
+                </div>
+                <div class="actions">
+                    <div class="action-btn like" data-id="2">❤️</div>
+                    <div class="counter" data-count="2">98</div>
+                    <div class="action-btn save" data-id="2">🔖</div>
+                    <div class="action-btn share">📤</div>
+                </div>
+            </section>
+            <section class="feed-item">
+                <div class="progress"></div>
+                <iframe data-muted-src="https://www.youtube.com/embed/NY0iWEbMfz0?rel=0&playsinline=1&mute=1&autoplay=1" data-unmuted-src="https://www.youtube.com/embed/NY0iWEbMfz0?rel=0&playsinline=1&mute=0&autoplay=1" data-unmuted-src-fallback="https://www.youtube.com/embed/NY0iWEbMfz0?rel=0&playsinline=1&mute=0&autoplay=1" data-paused-src="https://www.youtube.com/embed/NY0iWEbMfz0?rel=0&playsinline=1&mute=0&autoplay=0" data-playing="true" src="https://www.youtube.com/embed/NY0iWEbMfz0?rel=0&playsinline=1&mute=1&autoplay=1" title="Feed Video 3" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>
+                <div class="overlay"></div>
+                <div class="content">
+                    <div class="title">Akhlak di Dunia Digital</div>
+                    <div class="desc">Menjaga lisan dan adab di media sosial.</div>
+                    <div class="creator">by @iqrah.akhlaq</div>
+                </div>
+                <div class="actions">
+                    <div class="action-btn like" data-id="3">❤️</div>
+                    <div class="counter" data-count="3">143</div>
+                    <div class="action-btn save" data-id="3">🔖</div>
+                    <div class="action-btn share">📤</div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <script>
+        const feed = document.getElementById('feed');
+        const items = document.querySelectorAll('.feed-item');
+        const chips = document.querySelectorAll('.chip');
+        const likes = JSON.parse(localStorage.getItem('likes') || '{}');
+        const saves = JSON.parse(localStorage.getItem('saves') || '{}');
+
+        chips.forEach(chip => {
+            chip.addEventListener('click', () => {
+                chips.forEach(c => c.classList.remove('active'));
+                chip.classList.add('active');
+                feed.classList.add('blur');
+                setTimeout(() => feed.classList.remove('blur'), 300);
+                feed.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        });
+
+        function rippleEffect(e) {
+            const target = e.currentTarget;
+            const circle = document.createElement('span');
+            const diameter = Math.max(target.clientWidth, target.clientHeight);
+            const radius = diameter / 2;
+            circle.style.width = circle.style.height = `${diameter}px`;
+            circle.style.left = `${e.clientX - target.getBoundingClientRect().left - radius}px`;
+            circle.style.top = `${e.clientY - target.getBoundingClientRect().top - radius}px`;
+            circle.classList.add('ripple');
+            const ripple = target.getElementsByClassName('ripple')[0];
+            if (ripple) ripple.remove();
+            target.appendChild(circle);
+        }
+
+        function updateActionState(btn, map, key) {
+            if (map[key]) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        }
+
+        document.querySelectorAll('.action-btn').forEach(btn => {
+            btn.addEventListener('click', rippleEffect);
+        });
+
+        document.querySelectorAll('.like').forEach(btn => {
+            const id = btn.dataset.id;
+            updateActionState(btn, likes, id);
+            btn.addEventListener('click', () => {
+                likes[id] = !likes[id];
+                localStorage.setItem('likes', JSON.stringify(likes));
+                updateActionState(btn, likes, id);
+                if (likes[id]) {
+                    btn.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.2)' }, { transform: 'scale(1)' }], { duration: 300 });
+                    const counter = btn.nextElementSibling;
+                    const value = Number(counter.textContent) + 1;
+                    counter.textContent = value;
+                }
+            });
+        });
+
+        document.querySelectorAll('.save').forEach(btn => {
+            const id = btn.dataset.id;
+            updateActionState(btn, saves, id);
+            btn.addEventListener('click', () => {
+                saves[id] = !saves[id];
+                localStorage.setItem('saves', JSON.stringify(saves));
+                updateActionState(btn, saves, id);
+            });
+        });
+
+        const observer = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+                const progress = entry.target.querySelector('.progress');
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                    let start = null;
+                    function step(ts) {
+                        if (!entry.isIntersecting) return;
+                        if (!start) start = ts;
+                        const elapsed = ts - start;
+                        const percent = Math.min((elapsed / 6000) * 100, 100);
+                        progress.style.width = `${percent}%`;
+                        if (percent < 100) {
+                            requestAnimationFrame(step);
+                        }
+                    }
+                    requestAnimationFrame(step);
+                } else {
+                    entry.target.classList.remove('active');
+                    progress.style.width = '0%';
+                }
+            });
+        }, { threshold: 0.6 });
+
+        items.forEach(item => observer.observe(item));
+
+        items.forEach(item => {
+            let lastTap = 0;
+            function togglePlay(frame) {
+                if (!frame) return;
+                if (frame.dataset.unmutedSrc) {
+                    frame.src = frame.dataset.unmutedSrc;
+                    frame.dataset.unmutedSrc = '';
+                    frame.dataset.playing = 'true';
+                    return;
+                }
+                if (frame.dataset.playing === 'true') {
+                    frame.src = frame.dataset.pausedSrc;
+                    frame.dataset.playing = 'false';
+                } else {
+                    frame.src = frame.dataset.unmutedSrcFallback || frame.dataset.mutedSrc;
+                    frame.dataset.playing = 'true';
+                }
+            }
+            item.addEventListener('touchend', () => {
+                const now = Date.now();
+                if (now - lastTap < 300) {
+                    const like = item.querySelector('.like');
+                    like.click();
+                } else {
+                    togglePlay(item.querySelector('iframe'));
+                }
+                lastTap = now;
+            });
+            item.addEventListener('click', () => {
+                togglePlay(item.querySelector('iframe'));
+            });
+        });
+    </script>
+    <nav class="bottom-nav">
+        <a class="nav-item" href="Dashboard.html">
+            <svg viewBox="0 0 24 24"><path d="M12 3l8 6v11h-6v-6H10v6H4V9l8-6z"/></svg>
+            Home
+        </a>
+        <a class="nav-item" href="Modul.html">
+            <svg viewBox="0 0 24 24"><path d="M6 4h9a3 3 0 0 1 3 3v12a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2V6a2 2 0 0 1 2-2zm0 2v10a3.5 3.5 0 0 1 2-.7h8V7a1 1 0 0 0-1-1H6z"/></svg>
+            Modul
+        </a>
+        <a class="nav-item active" href="Feeds.html">
+            <svg viewBox="0 0 24 24"><path d="M4 4h16a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H7l-3 3v-3H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm3 4h10v2H7zm0 4h7v2H7z"/></svg>
+            Feeds
+        </a>
+        <a class="nav-item" href="Community.html">
+            <svg viewBox="0 0 24 24"><path d="M4 4h16a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H9l-5 4v-4H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/></svg>
+            Community
+        </a>
+        <a class="nav-item" href="Profile.html">
+            <svg viewBox="0 0 24 24"><path d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4zm0 2c-4.4 0-8 2.2-8 5v1h16v-1c0-2.8-3.6-5-8-5z"/></svg>
+            Profil
+        </a>
+    </nav>
+</body>
+</html>

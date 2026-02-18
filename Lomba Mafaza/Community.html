@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Community Circle - IQRAH</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-start: #3ca543;
+            --bg-end: #0F9D58;
+            --card-bg: rgba(255, 255, 255, 0.1);
+            --card-border: rgba(255, 255, 255, 0.2);
+            --glow: #0F9D58;
+            --accent: #D4AF37;
+            --text: #F5F5F5;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, var(--bg-start) 0%, var(--bg-end) 100%);
+            min-height: 100vh;
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 20px 16px 110px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .pattern-overlay {
+            position: absolute;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cg fill='%23FFFFFF' fill-opacity='0.03'%3E%3Cpolygon points='50,0 100,25 100,75 50,100 0,75 0,25'/%3E%3C/g%3E%3C/svg%3E");
+            background-size: 120px 120px;
+            opacity: 0.2;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .floating-shape {
+            position: absolute;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(15, 157, 88, 0.3) 0%, rgba(27, 94, 32, 0.2) 100%);
+            filter: blur(55px);
+            animation: float 8s ease-in-out infinite;
+            z-index: 1;
+        }
+
+        .shape-1 {
+            width: 240px;
+            height: 240px;
+            top: -8%;
+            left: -18%;
+        }
+
+        .shape-2 {
+            width: 200px;
+            height: 200px;
+            bottom: 5%;
+            right: -15%;
+            animation-delay: 2.5s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-26px) rotate(4deg); }
+        }
+
+        .page {
+            width: 100%;
+            max-width: 430px;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.92);
+            border: 1px solid rgba(15, 157, 88, 0.18);
+            border-radius: 22px;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 10px 32px rgba(0, 0, 0, 0.18), 0 0 18px rgba(15, 157, 88, 0.12);
+            color: #0F9D58;
+        }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        .reveal.in-view {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 12px 6px;
+            animation: slideDown 0.9s ease;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .back-btn,
+        .icon-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            display: grid;
+            place-items: center;
+            color: var(--text);
+            background: rgba(255, 255, 255, 0.08);
+            text-decoration: none;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            position: relative;
+        }
+
+        .back-btn:hover,
+        .icon-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 16px rgba(15, 157, 88, 0.4);
+        }
+
+        .badge {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            background: #D4AF37;
+            color: #1B5E20;
+            font-size: 9px;
+            padding: 2px 5px;
+            border-radius: 999px;
+            display: none;
+        }
+
+        .badge.show {
+            display: inline-flex;
+        }
+
+        .title-wrap {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .title {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .subtitle {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .group-card {
+            padding: 14px;
+            display: grid;
+            gap: 12px;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .group-card:hover {
+            box-shadow: 0 0 20px rgba(15, 157, 88, 0.35);
+        }
+
+        .group-card.pressed {
+            transform: scale(0.98);
+        }
+
+        .group-top {
+            display: grid;
+            grid-template-columns: 52px 1fr auto;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .group-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 16px;
+            background: rgba(15, 157, 88, 0.08);
+            border: 1px solid rgba(15, 157, 88, 0.2);
+            display: grid;
+            place-items: center;
+            font-size: 22px;
+        }
+
+        .group-name {
+            font-weight: 600;
+        }
+
+        .group-meta {
+            font-size: 11px;
+            color: rgba(15, 157, 88, 0.7);
+        }
+
+        .active-badge {
+            font-size: 10px;
+            padding: 4px 8px;
+            border-radius: 999px;
+            background: rgba(15, 157, 88, 0.12);
+            border: 1px solid rgba(15, 157, 88, 0.25);
+            color: #0F9D58;
+            justify-self: start;
+        }
+
+        .join-btn {
+            padding: 8px 12px;
+            border-radius: 999px;
+            border: none;
+            background: linear-gradient(135deg, #0F9D58 0%, #1B5E20 100%);
+            color: var(--text);
+            font-weight: 600;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .chat-view {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(12, 120, 64, 0.25) 0%, rgba(2, 60, 30, 0.25) 100%);
+            transform: translateX(100%);
+            transition: transform 0.5s ease;
+            padding: 16px 12px 80px;
+            z-index: 4;
+        }
+
+        .chat-view.show {
+            transform: translateX(0);
+        }
+
+        .chat-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding-bottom: 10px;
+        }
+
+        .chat-title {
+            font-weight: 600;
+        }
+
+        .chat-area {
+            height: 58vh;
+            overflow-y: auto;
+            padding-right: 6px;
+            display: grid;
+            gap: 10px;
+        }
+
+        .message {
+            display: flex;
+            gap: 8px;
+            align-items: flex-end;
+            animation: bubbleIn 0.3s ease;
+        }
+
+        .message.user {
+            justify-content: flex-end;
+        }
+
+        .avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .bubble {
+            padding: 10px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            max-width: 70%;
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .message.user .bubble {
+            background: rgba(15, 157, 88, 0.3);
+            border: 1px solid rgba(15, 157, 88, 0.5);
+        }
+
+        .timestamp {
+            font-size: 9px;
+            color: rgba(255, 255, 255, 0.6);
+            margin-top: 4px;
+        }
+
+        .typing {
+            display: inline-flex;
+            gap: 4px;
+        }
+
+        .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.7);
+            animation: typing 1s infinite;
+        }
+
+        .dot:nth-child(2) { animation-delay: 0.2s; }
+        .dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes typing {
+            0%, 100% { transform: translateY(0); opacity: 0.6; }
+            50% { transform: translateY(-4px); opacity: 1; }
+        }
+
+        @keyframes bubbleIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .chat-input {
+            position: fixed;
+            left: 50%;
+            bottom: 16px;
+            transform: translateX(-50%);
+            width: calc(100% - 32px);
+            max-width: 430px;
+            display: flex;
+            gap: 10px;
+            padding: 10px;
+            border-radius: 18px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            z-index: 5;
+        }
+
+        .chat-open .page {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .chat-input input {
+            flex: 1;
+            border: none;
+            background: transparent;
+            color: var(--text);
+            font-family: 'Poppins', sans-serif;
+            font-size: 13px;
+        }
+
+        .chat-input input:focus {
+            outline: none;
+        }
+
+        .send-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 14px;
+            border: none;
+            background: linear-gradient(135deg, #0F9D58 0%, #1B5E20 100%);
+            color: var(--text);
+            display: grid;
+            place-items: center;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(0);
+            animation: ripple 0.6s linear;
+            pointer-events: none;
+        }
+
+        @keyframes ripple {
+            to { transform: scale(4); opacity: 0; }
+        }
+
+        .bottom-nav {
+            position: fixed;
+            left: 50%;
+            bottom: 16px;
+            transform: translateX(-50%);
+            width: calc(100% - 32px);
+            max-width: 430px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0;
+            z-index: 5;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            font-size: 9px;
+            color: rgba(255, 255, 255, 0.7);
+            transition: color 0.2s ease;
+            text-decoration: none;
+        }
+
+        .nav-item svg {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+        }
+
+        .nav-item.active {
+            color: #0F9D58;
+            text-shadow: 0 0 10px rgba(15, 157, 88, 0.6);
+        }
+
+        @media (max-width: 360px) {
+            .nav-item {
+                font-size: 0;
+            }
+            .nav-item svg {
+                width: 22px;
+                height: 22px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="pattern-overlay"></div>
+    <div class="floating-shape shape-1"></div>
+    <div class="floating-shape shape-2"></div>
+
+    <div class="page">
+        <header class="header">
+            <div class="header-left">
+                <a class="back-btn" href="Dashboard.html" aria-label="Kembali">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M15 6l-6 6 6 6"/></svg>
+                </a>
+                <div class="title-wrap">
+                    <div class="title">Community Circle</div>
+                    <div class="subtitle">Bertumbuh Bersama</div>
+                </div>
+            </div>
+            <button class="icon-btn ripple-target" id="searchBtn" aria-label="Cari">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M15.5 14h-.8l-.3-.3A6.5 6.5 0 1 0 14 15.5l.3.3v.8L20 21l1-1-5.5-5.5zM10 15a5 5 0 1 1 0-10 5 5 0 0 1 0 10z"/></svg>
+                <span class="badge" id="notifBadge">1</span>
+            </button>
+        </header>
+
+        <section class="group-card glass reveal ripple-target" data-group="Tafsir Pemula">
+            <div class="group-top">
+                <div class="group-icon">📖</div>
+                <div>
+                    <div class="group-name">Tafsir Pemula</div>
+                    <div class="group-meta">1.2k anggota</div>
+                    <div class="active-badge">Aktif</div>
+                </div>
+                <button class="join-btn ripple-target" data-action="join">Gabung</button>
+            </div>
+        </section>
+
+        <section class="group-card glass reveal ripple-target" data-group="Sahabat Hijrah">
+            <div class="group-top">
+                <div class="group-icon">🤝</div>
+                <div>
+                    <div class="group-name">Sahabat Hijrah</div>
+                    <div class="group-meta">860 anggota</div>
+                    <div class="active-badge">Aktif</div>
+                </div>
+                <button class="join-btn ripple-target" data-action="join">Gabung</button>
+            </div>
+        </section>
+
+        <section class="group-card glass reveal ripple-target" data-group="Diskusi Fiqih">
+            <div class="group-top">
+                <div class="group-icon">🕌</div>
+                <div>
+                    <div class="group-name">Diskusi Fiqih</div>
+                    <div class="group-meta">2.3k anggota</div>
+                    <div class="active-badge">Aktif</div>
+                </div>
+                <button class="join-btn ripple-target" data-action="join">Gabung</button>
+            </div>
+        </section>
+
+        <section class="group-card glass reveal ripple-target" data-group="Tadabbur Qur'an">
+            <div class="group-top">
+                <div class="group-icon">✨</div>
+                <div>
+                    <div class="group-name">Tadabbur Qur'an</div>
+                    <div class="group-meta">1.7k anggota</div>
+                    <div class="active-badge">Aktif</div>
+                </div>
+                <button class="join-btn ripple-target" data-action="join">Gabung</button>
+            </div>
+        </section>
+    </div>
+
+    <section class="chat-view" id="chatView">
+        <div class="chat-header">
+            <button class="icon-btn ripple-target" id="backChat" aria-label="Kembali">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M15 6l-6 6 6 6"/></svg>
+            </button>
+            <div class="chat-title" id="chatTitle">Chat</div>
+            <div></div>
+        </div>
+        <div class="chat-area" id="chatArea"></div>
+    </section>
+
+    <div class="chat-input hidden" id="chatInput">
+        <input type="text" id="chatText" placeholder="Tulis pesan..." />
+        <button class="send-btn ripple-target" id="sendBtn" aria-label="Kirim">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M2 21l20-9L2 3v7l14 2-14 2z"/></svg>
+        </button>
+    </div>
+
+    <script>
+        const observer = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('in-view');
+                }
+            });
+        }, { threshold: 0.2 });
+
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+        function rippleEffect(e) {
+            const target = e.currentTarget;
+            const circle = document.createElement('span');
+            const diameter = Math.max(target.clientWidth, target.clientHeight);
+            const radius = diameter / 2;
+            circle.style.width = circle.style.height = `${diameter}px`;
+            circle.style.left = `${e.clientX - target.getBoundingClientRect().left - radius}px`;
+            circle.style.top = `${e.clientY - target.getBoundingClientRect().top - radius}px`;
+            circle.classList.add('ripple');
+            const ripple = target.getElementsByClassName('ripple')[0];
+            if (ripple) ripple.remove();
+            target.appendChild(circle);
+        }
+
+        document.querySelectorAll('.ripple-target').forEach(btn => {
+            btn.addEventListener('click', rippleEffect);
+        });
+
+        const chatView = document.getElementById('chatView');
+        const chatInput = document.getElementById('chatInput');
+        const chatArea = document.getElementById('chatArea');
+        const chatText = document.getElementById('chatText');
+        const sendBtn = document.getElementById('sendBtn');
+        const chatTitle = document.getElementById('chatTitle');
+        const notifBadge = document.getElementById('notifBadge');
+        const groupState = JSON.parse(localStorage.getItem('groups') || '{}');
+
+        function setJoinState(card, joined) {
+            const btn = card.querySelector('.join-btn');
+            btn.textContent = joined ? 'Masuk' : 'Gabung';
+            btn.dataset.joined = joined ? 'true' : 'false';
+        }
+
+        document.querySelectorAll('.group-card').forEach(card => {
+            const name = card.dataset.group;
+            setJoinState(card, groupState[name]);
+            const btn = card.querySelector('.join-btn');
+            btn.addEventListener('click', () => {
+                if (!groupState[name]) {
+                    groupState[name] = true;
+                    localStorage.setItem('groups', JSON.stringify(groupState));
+                    setJoinState(card, true);
+                } else {
+                    openChat(name);
+                }
+            });
+        });
+
+        function openChat(name) {
+            chatTitle.textContent = name;
+            chatView.classList.add('show');
+            chatInput.classList.remove('hidden');
+            document.body.classList.add('chat-open');
+            loadMessages(name);
+        }
+
+        document.getElementById('backChat').addEventListener('click', () => {
+            chatView.classList.remove('show');
+            chatInput.classList.add('hidden');
+            document.body.classList.remove('chat-open');
+        });
+
+        function appendMessage(text, type) {
+            const msg = document.createElement('div');
+            msg.className = `message ${type}`;
+            if (type === 'user') {
+                msg.innerHTML = `<div class="bubble">${text}<div class="timestamp">${new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}</div></div>`;
+            } else {
+                msg.innerHTML = `<div class="avatar"></div><div class="bubble">${text}<div class="timestamp">${new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}</div></div>`;
+            }
+            chatArea.appendChild(msg);
+            chatArea.scrollTop = chatArea.scrollHeight;
+        }
+
+        function typingIndicator() {
+            const msg = document.createElement('div');
+            msg.className = 'message';
+            msg.innerHTML = `<div class="avatar"></div><div class="bubble"><span class="typing"><span class="dot"></span><span class="dot"></span><span class="dot"></span></span></div>`;
+            chatArea.appendChild(msg);
+            chatArea.scrollTop = chatArea.scrollHeight;
+            return msg;
+        }
+
+        function loadMessages(group) {
+            chatArea.innerHTML = '';
+            const history = JSON.parse(localStorage.getItem(`chat-${group}`) || '[]');
+            history.forEach(item => appendMessage(item.text, item.type));
+            chatArea.scrollTop = chatArea.scrollHeight;
+        }
+
+        function saveMessage(group, text, type) {
+            const key = `chat-${group}`;
+            const history = JSON.parse(localStorage.getItem(key) || '[]');
+            history.push({ text, type });
+            localStorage.setItem(key, JSON.stringify(history));
+        }
+
+        sendBtn.addEventListener('click', () => {
+            const text = chatText.value.trim();
+            if (!text) return;
+            const group = chatTitle.textContent;
+            appendMessage(text, 'user');
+            saveMessage(group, text, 'user');
+            chatText.value = '';
+            const typing = typingIndicator();
+            setTimeout(() => {
+                typing.remove();
+                const reply = "MasyaAllah, semoga bermanfaat untuk kita semua.";
+                appendMessage(reply, 'other');
+                saveMessage(group, reply, 'other');
+                notifBadge.classList.add('show');
+            }, 1500);
+        });
+
+        chatText.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                sendBtn.click();
+            }
+        });
+    </script>
+    <nav class="bottom-nav">
+        <a class="nav-item" href="Dashboard.html">
+            <svg viewBox="0 0 24 24"><path d="M12 3l8 6v11h-6v-6H10v6H4V9l8-6z"/></svg>
+            Home
+        </a>
+        <a class="nav-item" href="Modul.html">
+            <svg viewBox="0 0 24 24"><path d="M6 4h9a3 3 0 0 1 3 3v12a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2V6a2 2 0 0 1 2-2zm0 2v10a3.5 3.5 0 0 1 2-.7h8V7a1 1 0 0 0-1-1H6z"/></svg>
+            Modul
+        </a>
+        <a class="nav-item" href="Feeds.html">
+            <svg viewBox="0 0 24 24"><path d="M4 4h16a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H7l-3 3v-3H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm3 4h10v2H7zm0 4h7v2H7z"/></svg>
+            Feeds
+        </a>
+        <a class="nav-item active" href="Community.html">
+            <svg viewBox="0 0 24 24"><path d="M4 4h16a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H9l-5 4v-4H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/></svg>
+            Community
+        </a>
+        <a class="nav-item" href="Profile.html">
+            <svg viewBox="0 0 24 24"><path d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4zm0 2c-4.4 0-8 2.2-8 5v1h16v-1c0-2.8-3.6-5-8-5z"/></svg>
+            Profil
+        </a>
+    </nav>
+</body>
+</html>
